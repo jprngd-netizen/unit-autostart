@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Auto-atualizacao: o radio busca a versao nova na internet (nao depende de IP/LAN). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- So leitura: saber se a tela da frente e camera de re/DVR/chamada antes de
+         mandar HOME. Concedida por "appops set ... GET_USAGE_STATS allow". -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <application
+        android:allowBackup="false"
+        android:label="Início do rádio"
+        android:supportsRtl="true">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <service
+            android:name=".WakeService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Gatilho manual para teste, sem precisar desligar o carro:
+             adb shell am broadcast -a com.gsalem.unitautostart.RUN -p com.gsalem.unitautostart -->
+        <receiver
+            android:name=".RunReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.gsalem.unitautostart.RUN" />
+                <action android:name="com.gsalem.unitautostart.START" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
